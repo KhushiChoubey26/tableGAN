@@ -1,10 +1,3 @@
-"""
-Paper: http://www.vldb.org/pvldb/vol11/p1071-park.pdf
-Authors: Mahmoud Mohammadi, Noseong Park Adopted from https://github.com/carpedm20/DCGAN-tensorflow
-Created : 07/20/2017
-Modified: 10/15/2018
-"""
-
 from __future__ import division
 
 import time
@@ -113,10 +106,10 @@ class TableGan(object):
 
     def build_model(self):
 
-        self.y = tf.placeholder(
+        self.y = tf.compat.v1.placeholder(
             tf.float32, [self.batch_size, self.y_dim], name='y')
 
-        self.y_normal = tf.placeholder(
+        self.y_normal = tf.compat.v1.placeholder(
             tf.int16, [self.batch_size, 1], name='y_normal')
 
         # if self.crop:
@@ -125,15 +118,15 @@ class TableGan(object):
         #     image_dims = [self.input_height, self.input_width, self.c_dim]
 
         data_dims = [self.input_height, self.input_width, self.c_dim]
-        self.inputs = tf.placeholder(
+        self.inputs = tf.compat.v1.placeholder(
             tf.float32, [self.batch_size] + data_dims, name='inputs')
 
-        self.sample_inputs = tf.placeholder(
+        self.sample_inputs = tf.compat.v1.placeholder(
             tf.float32, [self.sample_num] + data_dims, name='sample_inputs')
 
         inputs = self.inputs
 
-        self.z = tf.placeholder(
+        self.z = tf.compat.v1.placeholder(
             tf.float32, [None, self.z_dim], name='z')
 
         self.z_sum = histogram_summary("z", self.z)
@@ -225,16 +218,16 @@ class TableGan(object):
         print("Feature Size = %s" % (self.D_features_mean.get_shape()[-1]))
 
         # Previous Global Mean for real Data
-        self.prev_gmean = tf.placeholder(tf.float32, [1, dim], name='prev_gmean')
+        self.prev_gmean = tf.compat.v1.placeholder(tf.float32, [1, dim], name='prev_gmean')
 
         # Previous Global Mean  for fake Data
-        self.prev_gmean_ = tf.placeholder(tf.float32, [1, dim], name='prev_gmean_')
+        self.prev_gmean_ = tf.compat.v1.placeholder(tf.float32, [1, dim], name='prev_gmean_')
 
         # Previous Global Variance for real Data
-        self.prev_gvar = tf.placeholder(tf.float32, [1, dim], name='prev_gvar')
+        self.prev_gvar = tf.compat.v1.placeholder(tf.float32, [1, dim], name='prev_gvar')
 
         # Previous Global Variance for fake Data
-        self.prev_gvar_ = tf.placeholder(tf.float32, [1, dim], name='prev_gvar_')
+        self.prev_gvar_ = tf.compat.v1.placeholder(tf.float32, [1, dim], name='prev_gvar_')
 
         # Moving Average Contributions
         mac = 0.99
@@ -277,15 +270,15 @@ class TableGan(object):
     def train(self, config, experiment):
         print("Start Training...\n")
 
-        d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+        d_optim = tf.compat.v1.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
             .minimize(self.d_loss, var_list=self.d_vars)
 
         # Classifier
         if self.y_dim:
-            c_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+            c_optim = tf.compat.v1.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
                 .minimize(self.c_loss, var_list=self.c_vars)
 
-        g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+        g_optim = tf.compat.v1.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
             .minimize(self.g_loss, var_list=self.g_vars)
 
         try:
@@ -332,10 +325,10 @@ class TableGan(object):
 
         feature_size = self.feature_size
 
-        gmean = np.zeros((1, feature_size), dtype=np.float32)
-        gmean_ = np.zeros((1, feature_size), dtype=np.float32)
-        gvar = np.zeros((1, feature_size), dtype=np.float32)
-        gvar_ = np.zeros((1, feature_size), dtype=np.float32)
+        gmean = np.zeros((1, feature_size), dtype=np.float6432)
+        gmean_ = np.zeros((1, feature_size), dtype=np.float6432)
+        gvar = np.zeros((1, feature_size), dtype=np.float6432)
+        gvar_ = np.zeros((1, feature_size), dtype=np.float6432)
 
         for epoch in xrange(config.epoch):
 
@@ -566,7 +559,7 @@ class TableGan(object):
                     self.save(config.checkpoint_dir, counter)
 
     def discriminator(self, image, y=None, reuse=False):
-        with tf.variable_scope("discriminator") as scope:
+        with tf.compat.v1.variable_scope("discriminator") as scope:
             if reuse:
                 scope.reuse_variables()
             print(not self.y_dim)
@@ -616,7 +609,7 @@ class TableGan(object):
                 return tf.nn.sigmoid(h3), h3, h1  # new D
 
     def sampler_discriminator(self, input, y=None):
-        with tf.variable_scope("discriminator") as scope:
+        with tf.compat.v1.variable_scope("discriminator") as scope:
 
             scope.reuse_variables()
 
@@ -661,7 +654,7 @@ class TableGan(object):
     # Classifier
     def classification(self, image, y, reuse=False):
 
-        with tf.variable_scope("classification") as scope:
+        with tf.compat.v1.variable_scope("classification") as scope:
             if reuse:
                 scope.reuse_variables()
             assert (y is not None)
@@ -687,7 +680,7 @@ class TableGan(object):
 
     def generator(self, z, y=None):
         # Add
-        with tf.variable_scope("generator") as scope:
+        with tf.compat.v1.variable_scope("generator") as scope:
 
             s_h, s_w = self.output_height, self.output_width
 
@@ -742,7 +735,7 @@ class TableGan(object):
             return tf.nn.tanh(h4)
 
     def sampler(self, z, y=None):
-        with tf.variable_scope("generator") as scope:
+        with tf.compat.v1.variable_scope("generator") as scope:
 
             scope.reuse_variables()
 
@@ -854,7 +847,7 @@ class TableGan(object):
 
         if self.y_dim:
             y = y.reshape(y.shape[0], -1).astype(np.int16)
-            y_onehot = np.zeros((len(y), classes), dtype=np.float)
+            y_onehot = np.zeros((len(y), classes), dtype=np.float64)
             for i, lbl in enumerate(y):
                 y_onehot[i, y[i]] = 1.0
             return X, y_onehot, y

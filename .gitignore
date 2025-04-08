@@ -1,12 +1,28 @@
-
-\.idea/
-
-\.ipynb_checkpoints/
-
+# System files
+.DS_Store
 __pycache__/
+*.py[cod]
+*$py.class
 
+# Virtual environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Checkpoint directories
 checkpoint/
 
+# Large data files
+data/chess/*.csv
+data/covtype/*.csv
+
+# Generated samples
 samples/
 
-logs/
+# Visualization files
+visuals/
+
+# Evaluation results
+evaluation_results.csv

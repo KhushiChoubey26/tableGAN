@@ -13,7 +13,21 @@ from time import gmtime, strftime
 from six.moves import xrange
 
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
+
+# TensorFlow 2.x compatibility - slim replacement
+import tensorflow as tf
+
+# Simple replacement for slim functionality we need
+class SlimReplacement:
+    class model_analyzer:
+        @staticmethod
+        def analyze_vars(variables, print_info=True):
+            if print_info:
+                for var in variables:
+                    print(f"{var.name} - {var.shape}")
+
+slim = SlimReplacement()
+
 import os
 import matplotlib.pyplot as plt
 
@@ -27,7 +41,7 @@ pp = pprint.PrettyPrinter()
 
 get_stddev = lambda x, k_h, k_w: 1 / math.sqrt(k_w * k_h * x.get_shape()[-1])
 
-DATASETS = ('LACity', 'Health', 'Adult', 'Ticket')
+DATASETS = ('LACity', 'Health', 'Adult', 'Ticket', 'Chess', 'Covtype')
 
 
 def padding_duplicating(data, row_size):
@@ -53,9 +67,13 @@ def reshape(data, dim):
     return data
 
 
+
 def show_all_variables():
-    model_vars = tf.trainable_variables()
-    slim.model_analyzer.analyze_vars(model_vars, print_info=True)
+    model_vars = tf.compat.v1.trainable_variables()
+    print("Model Variables:")
+    for var in model_vars:
+        print(f"  {var.name} - {var.shape}")
+
 
 
 def get_image(image_path, input_height, input_width,
